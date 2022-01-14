@@ -18,7 +18,11 @@ import org.springframework.stereotype.Component;
 public class DaoFichero {
 
 	private File file;
-
+	
+	/**
+	 * En el constructor se revisa si existe el fichero en caso de no existir lo crea  y en caso contrario lo lee
+	 * @throws IOException
+	 */
 	public DaoFichero() throws IOException {
 
 		file = new File("cadenas.txt");
@@ -31,6 +35,10 @@ public class DaoFichero {
 
 	}
 
+	/**
+	 * Lee la informacion del fichero de texto que recibe como parámetro
+	 * @param fichero
+	 */
 	public void leerFichero(File fichero) {
 
 		try (FileReader fr = new FileReader(fichero); BufferedReader br = new BufferedReader(fr);) {
@@ -48,9 +56,15 @@ public class DaoFichero {
 			e.printStackTrace();
 		}
 	}
-
-	public void escribirFichero(String cadena) {
-
+	
+	/**
+	 * Escribe en el fichero de texto atributo de la clase la cadena de texto recibida como parametro
+	 * @param cadena
+	 */
+	public boolean escribirFichero(String cadena) {
+		
+		boolean escrito = true;
+		
 		try (FileWriter writer = new FileWriter(file, true);
 				BufferedWriter bufferWriter = new BufferedWriter(writer);) {
 			bufferWriter.write(cadena);
@@ -60,9 +74,20 @@ public class DaoFichero {
 		} catch (IOException e) {
 			System.out.println("No se ha completado la escritura");
 			e.printStackTrace();
+			escrito = false;
+			return escrito;
 		}
+		
+		return escrito;
 	}
 
+	
+	/**
+	 * Cuenta el numero de lineas del fichero file en las que aparece la palabra pasada como parametro.
+	 * No tiene en cuenta mayusculas/minusculas, tildes y solo cuenta la primera aparicion de la palabra en la cadena 
+	 * @param palabra
+	 * @return devuelve el numero de palabras coincidentes
+	 */
 	public String contarCadenasConPalabra(String palabra) {
 		Collator c = Collator.getInstance(new Locale("es"));
 		c.setStrength(Collator.PRIMARY);
@@ -94,11 +119,15 @@ public class DaoFichero {
 
 		return totalCadenas;
 	}
-
+	
+	/**
+	 * Verifica que la cadena pasada solo contenga una palabra
+	 * @param palabra
+	 * @return True si solo contiene una palabra y false si tiene mas
+	 */
 	public boolean unaPalabraRequest(String palabra) {
 
 		String[] totalPalabras = palabra.split(" ");
-		System.out.println(totalPalabras.length);
 		if (totalPalabras.length == 1) {
 			return true;
 		} else {
