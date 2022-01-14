@@ -1,3 +1,3 @@
 # Actividad1Devops
 
-Esta es la actividad uno de la asignatura DEVOPS, del grupo 3 formado por Pablo
+Esta es la actividad uno de la asignatura DEVOPS. El grupo de entrega está compuesto por Jaime Hebrero, Pablo Beitia y Cristian Garcia.
