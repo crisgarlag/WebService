@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Collator;
+import java.text.Normalizer;
 import java.util.Locale;
 import java.util.Scanner;
 import java.text.Collator;
@@ -18,9 +19,11 @@ import org.springframework.stereotype.Component;
 public class DaoFichero {
 
 	private File file;
-	
+
 	/**
-	 * En el constructor se revisa si existe el fichero en caso de no existir lo crea  y en caso contrario lo lee
+	 * En el constructor se revisa si existe el fichero en caso de no existir lo
+	 * crea y en caso contrario lo lee
+	 * 
 	 * @throws IOException
 	 */
 	public DaoFichero() throws IOException {
@@ -37,6 +40,7 @@ public class DaoFichero {
 
 	/**
 	 * Lee la informacion del fichero de texto que recibe como parámetro
+	 * 
 	 * @param fichero
 	 */
 	public void leerFichero(File fichero) {
@@ -56,15 +60,17 @@ public class DaoFichero {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * Escribe en el fichero de texto atributo de la clase la cadena de texto recibida como parametro
+	 * Escribe en el fichero de texto atributo de la clase la cadena de texto
+	 * recibida como parametro
+	 * 
 	 * @param cadena
 	 */
 	public boolean escribirFichero(String cadena) {
-		
-		boolean escrito = true;
-		
+
+		boolean esEscrito = true;
+
 		try (FileWriter writer = new FileWriter(file, true);
 				BufferedWriter bufferWriter = new BufferedWriter(writer);) {
 			bufferWriter.write(cadena);
@@ -74,23 +80,22 @@ public class DaoFichero {
 		} catch (IOException e) {
 			System.out.println("No se ha completado la escritura");
 			e.printStackTrace();
-			escrito = false;
-			return escrito;
+			esEscrito = false;
+			return esEscrito;
 		}
-		
-		return escrito;
+
+		return esEscrito;
 	}
 
-	
 	/**
-	 * Cuenta el numero de lineas del fichero file en las que aparece la palabra pasada como parametro.
-	 * No tiene en cuenta mayusculas/minusculas, tildes y solo cuenta la primera aparicion de la palabra en la cadena 
+	 * Cuenta el numero de lineas del fichero file en las que aparece la palabra
+	 * pasada como parametro. No tiene en cuenta mayusculas/minusculas, tildes y
+	 * solo cuenta la primera aparicion de la palabra en la cadena
+	 * 
 	 * @param palabra
 	 * @return devuelve el numero de palabras coincidentes
 	 */
 	public String contarCadenasConPalabra(String palabra) {
-		Collator c = Collator.getInstance(new Locale("es"));
-		c.setStrength(Collator.PRIMARY);
 		String totalCadenas = null;
 		int contador = 0;
 
@@ -101,13 +106,12 @@ public class DaoFichero {
 		try (Scanner lector = new Scanner(file);) {
 			while (lector.hasNext()) {
 				String linea = lector.nextLine();
-				String[] totalPalabras = linea.split(" ");
-				for (int i = 0; i < totalPalabras.length; i++) {
-					if (c.equals(totalPalabras[i], palabra)) {
-						contador++;
-						break;
-					}
+				linea = adaptarTexto(linea);
+				palabra = adaptarTexto(palabra);
+				if (linea.contains(palabra)) {
+					contador++;
 				}
+
 			}
 		} catch (FileNotFoundException e) {
 
@@ -119,9 +123,10 @@ public class DaoFichero {
 
 		return totalCadenas;
 	}
-	
+
 	/**
 	 * Verifica que la cadena pasada solo contenga una palabra
+	 * 
 	 * @param palabra
 	 * @return True si solo contiene una palabra y false si tiene mas
 	 */
@@ -133,6 +138,13 @@ public class DaoFichero {
 		} else {
 			return false;
 		}
+	}
+
+	public String adaptarTexto(String texto) {
+		texto = Normalizer.normalize(texto, Normalizer.Form.NFD);
+		texto = texto.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		texto = texto.toLowerCase();
+		return texto;
 	}
 
 }
