@@ -139,7 +139,15 @@ public class DaoFichero {
 			return false;
 		}
 	}
-
+	
+	/**
+	 * El metodo normaliza el texto para remplazar los caracteres unicodes y
+	 * convertirlo a minusculas.
+	 * 
+	 * @param texto
+	 * @return texto modificado 
+	 * 
+	 */
 	public String adaptarTexto(String texto) {
 		texto = Normalizer.normalize(texto, Normalizer.Form.NFD);
 		texto = texto.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
