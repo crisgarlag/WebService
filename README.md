@@ -1,3 +1,3 @@
 # Actividad1Devops
 
-Esta es la actividad uno de la asignatura DEVOPS. El grupo de entrega está compuesto por Jaime Hebrero, Pablo Beitia y Cristian Garcia.
+Esta es la actividad uno de la asignatura DEVOPS de 2º DAM de ITEdix.
