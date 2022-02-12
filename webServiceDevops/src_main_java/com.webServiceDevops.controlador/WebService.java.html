@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WebService.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">webServiceDevops (12 feb. 2022 10:37:44)</a> &gt; <a href="../../index.html" class="el_group">webServiceDevops</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.webServiceDevops.controlador</a> &gt; <span class="el_source">WebService.java</span></div><h1>WebService.java</h1><pre class="source lang-java linenums">package com.webServiceDevops.controlador;
+
+import java.io.FileNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.webServiceDevops.persistencia.DaoFichero;
+
+@RestController
+<span class="fc" id="L18">public class WebService {</span>
+
+	@Autowired
+	DaoFichero daoFichero;
+
+	/**
+	 * Metodo usado para que el cliente solicite POST para añadir la cadena de texto al fichero creado por daoFichero.
+	 * @param cadena
+	 * @return Created al añadir la informacion y Not modified en caso contrario
+	 */
+	@PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
+	public ResponseEntity&lt;String&gt; añadirCadena(@RequestBody String cadena) {
+
+		
+<span class="fc bfc" id="L32" title="All 2 branches covered.">		if(daoFichero.escribirFichero(cadena))</span>
+<span class="fc" id="L33">			return new ResponseEntity&lt;String&gt;(HttpStatus.CREATED);</span>
+		else
+<span class="fc" id="L35">			return new ResponseEntity&lt;String&gt;(HttpStatus.NOT_MODIFIED);</span>
+				
+	}
+	/**
+	 * Metodo usado para que el cliente solicite GET para consultar la cadena de texto en el fichero creado por daoFichero.
+	 * @param cadena
+	 * @return El numero de cadenas y Ok si el metodo contarCadenasConPalabra devuelve distinto de null y Bad Request en caso contrario
+	 * @throws FileNotFoundException 
+	 */
+	@GetMapping(consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public ResponseEntity&lt;String&gt; contarCadena(@RequestBody String cadena) throws FileNotFoundException {
+
+<span class="fc" id="L47">		String numeroCadenas = daoFichero.contarCadenasConPalabra(cadena);</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">		if (numeroCadenas != null)</span>
+
+<span class="fc" id="L51">			return new ResponseEntity&lt;String&gt;(numeroCadenas, HttpStatus.OK);</span>
+		else
+<span class="fc" id="L53">			return new ResponseEntity&lt;String&gt;(HttpStatus.BAD_REQUEST);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>webServiceDevops (12 feb. 2022 10:37:44)</div></body></html>

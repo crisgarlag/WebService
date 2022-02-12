@@ -7,11 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.Collator;
 import java.text.Normalizer;
-import java.util.Locale;
 import java.util.Scanner;
-import java.text.Collator;
 
 import org.springframework.stereotype.Component;
 
@@ -42,8 +39,9 @@ public class DaoFichero {
 	 * Lee la informacion del fichero de texto que recibe como parámetro
 	 * 
 	 * @param fichero
+	 * @throws IOException
 	 */
-	public void leerFichero(File fichero) {
+	public void leerFichero(File fichero) throws IOException {
 
 		try (FileReader fr = new FileReader(fichero); BufferedReader br = new BufferedReader(fr);) {
 			String linea = br.readLine();
@@ -52,12 +50,10 @@ public class DaoFichero {
 				System.out.println(linea);
 				linea = br.readLine();
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException();
+
 		}
 	}
 
@@ -79,7 +75,6 @@ public class DaoFichero {
 
 		} catch (IOException e) {
 			System.out.println("No se ha completado la escritura");
-			e.printStackTrace();
 			esEscrito = false;
 			return esEscrito;
 		}
@@ -94,8 +89,9 @@ public class DaoFichero {
 	 * 
 	 * @param palabra
 	 * @return devuelve el numero de palabras coincidentes
+	 * @throws FileNotFoundException
 	 */
-	public String contarCadenasConPalabra(String palabra) {
+	public String contarCadenasConPalabra(String palabra) throws FileNotFoundException {
 		String totalCadenas = null;
 		int contador = 0;
 
@@ -115,8 +111,7 @@ public class DaoFichero {
 			}
 		} catch (FileNotFoundException e) {
 
-			System.out.println("El fichero no existe");
-			e.printStackTrace();
+			throw new FileNotFoundException();
 		}
 
 		totalCadenas = String.valueOf(contador);
@@ -139,13 +134,13 @@ public class DaoFichero {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * El metodo normaliza el texto para remplazar los caracteres unicodes y
 	 * convertirlo a minusculas.
 	 * 
 	 * @param texto
-	 * @return texto modificado 
+	 * @return texto modificado
 	 * 
 	 */
 	public String adaptarTexto(String texto) {
@@ -153,6 +148,10 @@ public class DaoFichero {
 		texto = texto.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
 		texto = texto.toLowerCase();
 		return texto;
+	}
+
+	public File getFile() {
+		return file;
 	}
 
 }

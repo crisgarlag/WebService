@@ -1,5 +1,7 @@
 package com.webServiceDevops.controlador;
 
+import java.io.FileNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,9 +39,10 @@ public class WebService {
 	 * Metodo usado para que el cliente solicite GET para consultar la cadena de texto en el fichero creado por daoFichero.
 	 * @param cadena
 	 * @return El numero de cadenas y Ok si el metodo contarCadenasConPalabra devuelve distinto de null y Bad Request en caso contrario
+	 * @throws FileNotFoundException 
 	 */
 	@GetMapping(consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<String> ContarCadena(@RequestBody String cadena) {
+	public ResponseEntity<String> contarCadena(@RequestBody String cadena) throws FileNotFoundException {
 
 		String numeroCadenas = daoFichero.contarCadenasConPalabra(cadena);
 
