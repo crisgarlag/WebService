@@ -1,3 +1,3 @@
 Prueba
-Añade texto
-we
+Nueva Palabra
+Palabra nueva

@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WebServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">webServiceDevops (12 feb. 2022 10:37:44)</a> &gt; <a href="../../index.html" class="el_group">webServiceDevops</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.webServiceDevops.controladorTest</a> &gt; <span class="el_source">WebServiceTest.java</span></div><h1>WebServiceTest.java</h1><pre class="source lang-java linenums">package com.webServiceDevops.controladorTest;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WebServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">webServiceDevops (26 mar. 2022 15:33:58)</a> &gt; <a href="../../index.html" class="el_group">webServiceDevops</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.webServiceDevops.controladorTest</a> &gt; <span class="el_source">WebServiceTest.java</span></div><h1>WebServiceTest.java</h1><pre class="source lang-java linenums">package com.webServiceDevops.controladorTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.NoSuchAlgorithmException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,79 +18,137 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 
-
+import com.webServiceDevops.controlador.LoginController;
+import com.webServiceDevops.controlador.LoginController.LoginUserPayload;
+import com.webServiceDevops.controlador.UserController;
 import com.webServiceDevops.controlador.WebService;
+import com.webServiceDevops.entidad.Usuario;
 import com.webServiceDevops.persistencia.DaoFichero;
+import com.webServiceDevops.persistencia.UserRepository;
 
 @SpringBootTest
-<span class="fc" id="L25">class WebServiceTest {</span>
+<span class="fc" id="L30">class WebServiceTest {</span>
 	
-<span class="fc" id="L27">	public static String URL_SERVIDOR = &quot;http://localhost:12345&quot;;</span>
+<span class="fc" id="L32">	public static String URL_SERVIDOR = &quot;http://localhost:12345&quot;;</span>
 
 	@Autowired
 	private DaoFichero daoFichero;
 	
 	@Autowired
 	private WebService ws;
+	@Autowired
+	private UserRepository repository;
+	@Autowired
+	private LoginController login;
+	@Autowired
+	private UserController user;
 	
+	
+	@Test
+	public void getContarCadenaUnaPalabraTest() throws FileNotFoundException, NoSuchAlgorithmException {
+		
+			
+<span class="fc" id="L51">		ResponseEntity&lt;String&gt; httpResponse = ws.contarCadena(&quot;Hola&quot;,loginUsuarioPrueba().getUser(),loginUsuarioPrueba().getToken());</span>
+		
+<span class="fc" id="L53">		assertEquals(HttpStatus.OK,httpResponse.getStatusCode());</span>
+		
+<span class="fc" id="L55">	}</span>
 	/**
 	 * El metodo debe devolver el codigo 200 OK, si recibe una unica palabra en la cadena pasada como argumento
 	 * @throws FileNotFoundException
 	 */
 	@Test
-	public void getContarCadenaUnaPalabraTest() throws FileNotFoundException {
+	public void getContarCadenaUnaPalabraUsuarioTokenInvalidosTest() throws FileNotFoundException {
 		
-<span class="fc" id="L42">		ResponseEntity&lt;String&gt; httpResponse = ws.contarCadena(&quot;Hola&quot;);</span>
+<span class="fc" id="L63">		ResponseEntity&lt;String&gt; httpResponse = ws.contarCadena(&quot;Hola&quot;,null,null);</span>
 		
-<span class="fc" id="L44">		assertEquals(HttpStatus.OK,httpResponse.getStatusCode());</span>
+<span class="fc" id="L65">		assertEquals(HttpStatus.FORBIDDEN,httpResponse.getStatusCode());</span>
 		
-<span class="fc" id="L46">	}</span>
+<span class="fc" id="L67">	}</span>
 	/**
 	 * El metodo debe devolver el codigo 400 Bad Request, si recibe más de una palabra en la cadena pasada como argumento
 	 * @throws FileNotFoundException
+	 * @throws NoSuchAlgorithmException 
 	 */
 	@Test
-	public void getContarCadenaMasDeUnaPalabraTest() throws FileNotFoundException {
+	public void getContarCadenaMasDeUnaPalabraTest() throws FileNotFoundException, NoSuchAlgorithmException {
 		
-<span class="fc" id="L54">		ResponseEntity&lt;String&gt; httpResponse = ws.contarCadena(&quot;Hola Mundo&quot;);</span>
+				
+<span class="fc" id="L77">		ResponseEntity&lt;String&gt; httpResponse = ws.contarCadena(&quot;Hola Mundo&quot;,loginUsuarioPrueba().getUser(),loginUsuarioPrueba().getToken());</span>
 		
-<span class="fc" id="L56">		assertEquals(HttpStatus.BAD_REQUEST, httpResponse.getStatusCode());</span>
+<span class="fc" id="L79">		assertEquals(HttpStatus.BAD_REQUEST, httpResponse.getStatusCode());</span>
 		
-<span class="fc" id="L58">	}</span>
+<span class="fc" id="L81">	}</span>
+	
+	
+	@Test
+	public void postAñadirCadenaTest() throws NoSuchAlgorithmException {
+		
+<span class="fc" id="L87">	File fichero = daoFichero.getFile();</span>
+			
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		if(!fichero.canWrite()) {</span>
+<span class="nc" id="L90">			fichero.setWritable(true);</span>
+		}
+		
+<span class="fc" id="L93">		ResponseEntity&lt;String&gt; httpResponse = ws.añadirCadena(&quot;Hola Mundo&quot;, loginUsuarioPrueba().getUser(),loginUsuarioPrueba().getToken());</span>
+		
+<span class="fc" id="L95">		assertEquals(HttpStatus.CREATED, httpResponse.getStatusCode());</span>
+		
+<span class="fc" id="L97">	}</span>
+	
+	
 	/**
 	 * El metodo debe devolver el codigo 201 Created, si la cadena se añade al fichero cadenas.txt
+	 * @throws NoSuchAlgorithmException 
 	 */
 	@Test
-	public void postAñadirCadenaTest() {
+	public void postAñadirCadenaUsuarioTokenInvalidosTest() throws NoSuchAlgorithmException {
 		
-<span class="fc" id="L65">	File fichero = daoFichero.getFile();</span>
+<span class="fc" id="L107">	File fichero = daoFichero.getFile();</span>
 		
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">		if(!fichero.canWrite()) {</span>
-<span class="nc" id="L68">			fichero.setWritable(true);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		if(!fichero.canWrite()) {</span>
+<span class="nc" id="L110">			fichero.setWritable(true);</span>
 		}
 		
-<span class="fc" id="L71">		ResponseEntity&lt;String&gt; httpResponse = ws.añadirCadena(&quot;Hola Mundo&quot;);</span>
+<span class="fc" id="L113">		ResponseEntity&lt;String&gt; httpResponse = ws.añadirCadena(&quot;Hola Mundo&quot;,null,null);</span>
 		
-<span class="fc" id="L73">		assertEquals(HttpStatus.CREATED, httpResponse.getStatusCode());</span>
+<span class="fc" id="L115">		assertEquals(HttpStatus.FORBIDDEN, httpResponse.getStatusCode());</span>
 		
-<span class="fc" id="L75">	}</span>
+<span class="fc" id="L117">	}</span>
 	/**
 	 * El metodo debe devolver el codigo 304 Not Modified, si la cadena no se añade al fichero cadenas.txt
+	 * @throws NoSuchAlgorithmException 
 	 */
 	@Test
-	public void postAñadirCadenaFicheroProhibidaEscrituraTest() {
+	public void postAñadirCadenaFicheroProhibidaEscrituraTest() throws NoSuchAlgorithmException {
 		
-<span class="fc" id="L82">		File fichero = daoFichero.getFile();</span>
+<span class="fc" id="L125">		File fichero = daoFichero.getFile();</span>
 		
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">		if(fichero.canWrite()) {</span>
-<span class="fc" id="L85">			fichero.setWritable(false);</span>
+		
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if(fichero.canWrite()) {</span>
+<span class="fc" id="L129">			fichero.setWritable(false);</span>
 		}
 		
-<span class="fc" id="L88">		ResponseEntity&lt;String&gt; httpResponse = ws.añadirCadena(&quot;Hola Mundo&quot;);</span>
+<span class="fc" id="L132">		ResponseEntity&lt;String&gt; httpResponse = ws.añadirCadena(&quot;Hola Mundo&quot;,loginUsuarioPrueba().getUser(),loginUsuarioPrueba().getToken());</span>
 		
-<span class="fc" id="L90">		assertEquals(HttpStatus.NOT_MODIFIED, httpResponse.getStatusCode());</span>
+<span class="fc" id="L134">		assertEquals(HttpStatus.NOT_MODIFIED, httpResponse.getStatusCode());</span>
 		
-<span class="fc" id="L92">	}</span>
+<span class="fc" id="L136">	}</span>
+	
+	public Usuario loginUsuarioPrueba() throws NoSuchAlgorithmException {
+		
+<span class="fc" id="L140">		String loginUsuarioPrueba= &quot;loginUsuarioPrueba&quot;;</span>
+<span class="fc" id="L141">		String password=&quot;pass&quot;;</span>
+<span class="fc" id="L142">		Usuario currentUser = repository.findByUser(loginUsuarioPrueba);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if(currentUser==null) {</span>
+<span class="nc" id="L144">			user.addNewUser(new Usuario(loginUsuarioPrueba, password));</span>
+		}
+<span class="fc" id="L146">		LoginUserPayload userLogin = new LoginUserPayload(loginUsuarioPrueba,password);</span>
+<span class="fc" id="L147">		login.login(userLogin);</span>
+<span class="fc" id="L148">		currentUser = repository.findByUser(userLogin.getName());</span>
+<span class="fc" id="L149">		return currentUser;</span>
+		
+	}
 		
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>webServiceDevops (12 feb. 2022 10:37:44)</div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>webServiceDevops (26 mar. 2022 15:33:58)</div></body></html>

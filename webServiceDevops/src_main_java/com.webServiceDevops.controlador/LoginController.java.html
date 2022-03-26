@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LoginController.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">webServiceDevops (26 mar. 2022 15:33:58)</a> &gt; <a href="../../index.html" class="el_group">webServiceDevops</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.webServiceDevops.controlador</a> &gt; <span class="el_source">LoginController.java</span></div><h1>LoginController.java</h1><pre class="source lang-java linenums">package com.webServiceDevops.controlador;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import org.springframework.web.bind.annotation.RestController;
+
+import com.webServiceDevops.entidad.Usuario;
+import com.webServiceDevops.persistencia.ConversorHash;
+import com.webServiceDevops.persistencia.UserRepository;
+
+@RestController
+@RequestMapping(path = &quot;/login&quot;) //
+public class LoginController {
+
+	/**
+	 * Clase de apoyo para recibir los datos recibidos del cliente y comparar con
+	 * los datos de la bbdd
+	 * 
+	 * @author cristiangarcialagar
+	 *
+	 */
+	public static class LoginUserPayload {
+		String name;
+		String password;
+
+<span class="fc" id="L38">		public LoginUserPayload(String name, String password) {</span>
+<span class="fc" id="L39">			this.name = name;</span>
+<span class="fc" id="L40">			this.password = password;</span>
+<span class="fc" id="L41">		}</span>
+
+		public String getName() {
+<span class="fc" id="L44">			return name;</span>
+		}
+
+		public String getPassword() {
+<span class="nc" id="L48">			return password;</span>
+		}
+
+	}
+
+	private final UserRepository repository;
+	private Usuario currentUser;
+
+<span class="fc" id="L56">	public LoginController(UserRepository repository) {</span>
+<span class="fc" id="L57">		this.repository = repository;</span>
+<span class="fc" id="L58">	}</span>
+	/**
+	 * El usuario se logea y devuelve token si existe el nombre y la contraseña es correcta
+	 * @param usuarioLogin objeto que contiene el usuario y contraseñas pasadas en el body de la request
+	 * @return NotFound si el usuario no existe o la contraseña no es correcta y token + datos del usuario en caso de existir el usuario y ser correcta la contraseña
+	 * @throws NoSuchAlgorithmException
+	 */
+	@PostMapping
+	public ResponseEntity&lt;Usuario&gt; login(@RequestBody LoginUserPayload usuarioLogin) throws NoSuchAlgorithmException {
+
+<span class="fc" id="L68">		currentUser = repository.findByUser(usuarioLogin.name);</span>
+
+<span class="fc bfc" id="L70" title="All 4 branches covered.">		if (currentUser == null || !checkUserPassword(usuarioLogin.name, usuarioLogin.password)) {</span>
+<span class="fc" id="L71">			return new ResponseEntity&lt;Usuario&gt;(HttpStatus.NOT_FOUND);</span>
+		}
+
+<span class="fc" id="L74">		String token = currentUser.loginUser();</span>
+		// Guardamos usuario con las propiedades token y startlogin
+<span class="fc" id="L76">		repository.save(currentUser);</span>
+
+<span class="fc" id="L78">		HttpHeaders responseHeaders = new HttpHeaders();</span>
+<span class="fc" id="L79">		responseHeaders.set(&quot;Authorization&quot;, token);</span>
+<span class="fc" id="L80">		return ResponseEntity.ok().headers(responseHeaders).body(currentUser);</span>
+	}
+	
+	/**
+	 * Permite chequear para el login que la contraseña pasada para el login coincida con la almacenada en la bbdd para el usuario
+	 * @param user a loguearse
+ 	 * @param password
+	 * @return true si es correcta y false de lo contrario
+	 * @throws NoSuchAlgorithmException
+	 */
+	public boolean checkUserPassword(String user, String password) throws NoSuchAlgorithmException {
+
+<span class="fc" id="L92">		String passwordHash = ConversorHash.convertirAHash(password);</span>
+<span class="fc" id="L93">		currentUser = repository.findByUser(user);</span>
+		// Solo contrasto la contraseña porque el usuario es unico
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if (currentUser.getPassword().equals(passwordHash)) {</span>
+
+<span class="fc" id="L97">			return true;</span>
+		} else {
+<span class="fc" id="L99">			return false;</span>
+		}
+	}
+	/**
+	 * Permite comprobar si el usuario se encuentra logueado y el tiempo que lleva logueado no es superior a 1 hora
+	 * @param token valido del usuario que está logueado
+	 * @param user logueado
+	 * @return true si el usuario se encuentra logueado y el tiempo que lleva logueado no es superior a 1 hora y false de lo contrario
+	 */
+	public boolean checkLogin(String token, String user) {
+
+<span class="fc" id="L110">		Usuario currentUser = repository.findByUser(user);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		if (currentUser == null) {</span>
+<span class="fc" id="L112">			return false;</span>
+		}
+<span class="fc" id="L114">		Date checkLogin = new Date();</span>
+<span class="fc" id="L115">		int time = 60 * 60;// segundos * minutos</span>
+<span class="fc" id="L116">		Long tiempoLoginValido = (checkLogin.getTime() - currentUser.getStartLogin().getTime()) / 1000;</span>
+
+<span class="pc bpc" id="L118" title="1 of 4 branches missed.">		if (token.equals(currentUser.getToken()) &amp;&amp; tiempoLoginValido &lt; time)</span>
+<span class="fc" id="L119">			return true;</span>
+		else
+<span class="fc" id="L121">			return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>webServiceDevops (26 mar. 2022 15:33:58)</div></body></html>
